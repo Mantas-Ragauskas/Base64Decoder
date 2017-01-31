@@ -1,0 +1,8 @@
+﻿  main.cpp
+  Base64Decoder.cpp
+c:\users\xtree\documents\visual studio 2015\projects\base64decoder\base64decoder\src\base64decoder.cpp(12): warning C4267: 'initializing': conversion from 'size_t' to 'int8_t', possible loss of data
+c:\users\xtree\documents\visual studio 2015\projects\base64decoder\base64decoder\src\base64decoder.cpp(28): warning C4018: '<': signed/unsigned mismatch
+c:\users\xtree\documents\visual studio 2015\projects\base64decoder\base64decoder\src\base64decoder.cpp(73): warning C4018: '<=': signed/unsigned mismatch
+  Generating Code...
+  Base64Decoder.vcxproj -> C:\Users\xtree\documents\visual studio 2015\Projects\Base64Decoder\Debug\Base64Decoder.exe
+  Base64Decoder.vcxproj -> C:\Users\xtree\documents\visual studio 2015\Projects\Base64Decoder\Debug\Base64Decoder.pdb (Full PDB)
