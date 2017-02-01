@@ -1,53 +1,34 @@
 #pragma once
 #include <String>
 
-using std::string;
-
 class Base64Decoder
 {
 private:
-    /*******************************************************************************/
-    /* Found this idea of encoded character to integer conversion                  */
-    /* on http://www.adp-gmbh.ch/cpp/common/base64.html                            */
-    /*          (original code by René Nyffenegger)                                */
-    /*                                                                             */
-    /* Moved character resolution from in-loop to character resolution thus        */
-    /* having same performance, a bit more code lines, but far greater readability */ 
-    /*                                                                             */
-    /* As a consequence i had to wrap std::string::find to result 0 instead of -1  */
-    /* Optimizing for performance this method could be rewritten                   */ 
-    /* to accualy override rather than wrap the find function                      */
-    /*******************************************************************************/
-    static const string base64_chars;
+    static const std::string base64_chars;
 
 private:
-    /*******************************************************************************/
-    /* Wraps std:string:find fuction for search in base64_chars alphabet           */
-    /* Input:    Valid Base64 character                                            */
-    /* Output:   Integer representation of input                                   */
-    /* On Error: If the symbol is not recognized 0 is returned                     */             
-    /* Note:   Value 0 is ambigous with symbol A. As such this method              */
-    /*         cannot be used for Base64 validation                                */        
-    /*******************************************************************************/
-    static uint8_t DecodeBase64Character(char encodedCharacter);
-
     /*******************************************************************************/
     /* Validates encoded string:                                                   */
     /*     1) Minimal lengh                                                        */
     /*     2) Lengh modulus 4 check                                                */
     /*     3) Character set check                                                  */
     /*******************************************************************************/
-    static bool ValidateSring(const string& encodedString);
+    static bool ValidateSring(const std::string& encodedString);
 
     /*******************************************************************************/
-    /*                                                                             */
+    /* Decodes Base64 encoding using 24bit chunks, passed via 32 bit buffer        */
+    /* Used for the unpadded part of the encoded string                            */
     /*******************************************************************************/
-    static uint32_t FillBuffer(const string& encodedBlock);
-    
+    static uint32_t FillBuffer(const std::string& encodedBlock);
+    static std::string DecodeBuffer(uint32_t buffer);
+
+
     /*******************************************************************************/
-    /*                                                                             */
+    /* Decodes Base64 encoding using 24bit chunks, passed via 32 bit buffer        */
+    /* Used for the padded part of the encoded string                              */
     /*******************************************************************************/
-    static string DecodeBuffer(uint32_t buffer);
+    static uint32_t FillPaddedBuffer(const std::string& encodedBlock, uint8_t padding);
+    static std::string DecodePaddedBuffer(uint32_t buffer, uint8_t padding);
 
 public:
     /*******************************************************************************/
@@ -57,8 +38,10 @@ public:
     /* On Error: If provided input is invalid an empty string is returned          */
     /*******************************************************************************/
     /* Note: It is arguable if the input  should not be const&.                    */
-    /*      Having a copy is more costly but less likely to cause a crash          */
-    /*      Consideration for optimizing                                           */
+    /*    - Having a copy is more costly but less likely to cause a crash          */
+    /*    - Having move semantics makes encoded string unsuable afterwards         */
+    /*      and might cause an inconvenience                                       */        
+    /* Consideration for optimizing                                           */
     /*******************************************************************************/
-    static string Decode(string encodedString);
+    static std::string Decode(std::string encodedString);
 };
