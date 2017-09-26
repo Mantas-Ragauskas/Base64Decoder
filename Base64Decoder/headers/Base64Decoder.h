@@ -1,11 +1,8 @@
 #pragma once
-#include <String>
+#include <string>
 
 class Base64Decoder
 {
-private:
-    static const std::string base64_chars;
-
 private:
     /*******************************************************************************/
     /* Validates encoded string:                                                   */
@@ -13,13 +10,13 @@ private:
     /*     2) Lengh modulus 4 check                                                */
     /*     3) Character set check                                                  */
     /*******************************************************************************/
-    static bool ValidateSring(const std::string& encodedString);
+    static bool ValidateSring(std::string const& encodedString);
 
     /*******************************************************************************/
     /* Decodes Base64 encoding using 24bit chunks, passed via 32 bit buffer        */
     /* Used for the unpadded part of the encoded string                            */
     /*******************************************************************************/
-    static uint32_t FillBuffer(const std::string& encodedBlock);
+    static uint32_t FillBuffer(std::string const& encodedBlock);
     static std::string DecodeBuffer(uint32_t buffer);
 
 
@@ -27,7 +24,7 @@ private:
     /* Decodes Base64 encoding using 24bit chunks, passed via 32 bit buffer        */
     /* Used for the padded part of the encoded string                              */
     /*******************************************************************************/
-    static uint32_t FillPaddedBuffer(const std::string& encodedBlock, uint8_t padding);
+    static uint32_t FillPaddedBuffer(std::string const& encodedBlock, uint8_t padding);
     static std::string DecodePaddedBuffer(uint32_t buffer, uint8_t padding);
 
 public:

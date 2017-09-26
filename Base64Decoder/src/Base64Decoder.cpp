@@ -1,27 +1,28 @@
-#include <String>
-#include "../headers/Base64Decoder.h"
+#include <string>
+#include "Base64Decoder.h"
 
 using std::string;
 
-/*******************************************************************************/
-/* Found this idea of encoded character to integer conversion                  */
-/* on http://www.adp-gmbh.ch/cpp/common/base64.html                            */
-/*          (original code by René Nyffenegger)                                */
-/*******************************************************************************/
-const string Base64Decoder::base64_chars = 
-      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-
+namespace {
+    /*******************************************************************************/
+    /* Found this idea of encoded character to integer conversion                  */
+    /* on http://www.adp-gmbh.ch/cpp/common/base64.html                            */
+    /*          (original code by Renï¿½ Nyffenegger)                                */
+    /*******************************************************************************/
+    const string base64_chars =
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+}
 /********************************************************************************/
 /*                                                                              */
 /********************************************************************************/
-bool Base64Decoder::ValidateSring(const string& encodedString)
-    {
-    uint32_t length     = encodedString.length();
-    int32_t  paddingPos = -1;
-    
+bool Base64Decoder::ValidateSring(string const& encodedString){
+    uint32_t length = encodedString.length();
+    int32_t paddingPos = -1;
+
     if ((length < 4) || (0 != length % 4))
         return false;
 
+    // Override length to skip validation of padding symbols
     paddingPos = encodedString.find("=", length - 3);
     length = (-1 == paddingPos) ? length : paddingPos;
 
@@ -36,8 +37,7 @@ bool Base64Decoder::ValidateSring(const string& encodedString)
 /********************************************************************************/
 /*                                                                              */
 /********************************************************************************/
-uint32_t Base64Decoder::FillBuffer(const string &encodedBlock)
-{
+uint32_t Base64Decoder::FillBuffer(string const& encodedBlock) {
     uint32_t buffer = 0;
     buffer += base64_chars.find(encodedBlock[0]) << 18;
     buffer += base64_chars.find(encodedBlock[1]) << 12;
@@ -47,42 +47,39 @@ uint32_t Base64Decoder::FillBuffer(const string &encodedBlock)
 }
 
 /********************************************************************************/
-string Base64Decoder::DecodeBuffer(uint32_t buffer)
-{
-    string decodedBUffer = "";
-    decodedBUffer.append(1, (buffer & 0x00FF0000) >> 16);
-    decodedBUffer.append(1, (buffer & 0x0000FF00) >> 8);
-    decodedBUffer.append(1, (buffer & 0x000000FF) >> 0);
-    return decodedBUffer;
+string Base64Decoder::DecodeBuffer(uint32_t buffer){
+    string decodedBuffer = "";
+    decodedBuffer.append(1, (buffer & 0x00FF0000) >> 16);
+    decodedBuffer.append(1, (buffer & 0x0000FF00) >> 8);
+    decodedBuffer.append(1, (buffer & 0x000000FF) >> 0);
+    return decodedBuffer;
 }
 
 /********************************************************************************/
 /*                                                                              */
 /* Note: padding value ranges from 1 to 3                                       */
 /********************************************************************************/
-uint32_t Base64Decoder::FillPaddedBuffer(const string& encodedBlock, uint8_t padding)
-    {
+uint32_t Base64Decoder::FillPaddedBuffer(string const& encodedBlock, uint8_t padding) {
     uint32_t buffer = 0;
     buffer += base64_chars.find(encodedBlock[0]) << 18;
-    
+
     if (2 <= padding)
         buffer += base64_chars.find(encodedBlock[1]) << 12;
-    
+
     if ( 1 == padding)
         buffer += base64_chars.find(encodedBlock[2]) << 6;
     return buffer;
     }
 
 /********************************************************************************/
-string Base64Decoder::DecodePaddedBuffer(uint32_t buffer, uint8_t padding)
-    {
+string Base64Decoder::DecodePaddedBuffer(uint32_t buffer, uint8_t padding) {
     string decodedBUffer = "";
     decodedBUffer.append(1, (buffer & 0x00FF0000) >> 16);
-    
+
     if (2 >= padding)
        decodedBUffer.append(1, (buffer & 0x0000FF00) >> 8);
-    
-    if (1 == padding) 
+
+    if (1 == padding)
         decodedBUffer.append(1, (buffer & 0x000000FF) >> 0);
     return decodedBUffer;
     }
@@ -103,32 +100,29 @@ string Base64Decoder::DecodePaddedBuffer(uint32_t buffer, uint8_t padding)
 /********************************************************************************/
 string Base64Decoder::Decode(string encodedString)
     {
-    string   decodedString = "";
+    string decodedString = "";
     
     if (!ValidateSring(encodedString))
         return decodedString;
     
-    uint32_t length         = encodedString.length();
-    uint32_t paddingPos     = encodedString.find("=", length - 3);
-    uint8_t  paddingSymbols = 0; (-1 == paddingPos) ? 0 : length - paddingPos;
+    uint32_t length = encodedString.length();
+    uint32_t paddingPos = encodedString.find("=", length - 3);
+    uint8_t  paddingSymbols = 0;
 
-    if (-1 != paddingPos)
-        {
+    if (-1 != paddingPos) {
         paddingSymbols = length - paddingPos;
         length = paddingPos;
         }
   
     // Handles the majority of decoding
     uint32_t fullBlocks = length / 4;
-    for (int i = 0; i < fullBlocks; i++)
-        { 
+    for (int i = 0; i < fullBlocks; i++){
         uint32_t buffer = FillBuffer(encodedString.substr(i * 4, 4));
         decodedString.append(DecodeBuffer(buffer));
         }
     
     // Handles the decoding of padded string
-    if (paddingSymbols > 0)
-        {
+    if (paddingSymbols > 0) {
         string   paddedString = encodedString.substr(fullBlocks * 4, 4);
         uint32_t paddedBuffer = FillPaddedBuffer(paddedString, paddingSymbols);
         decodedString.append(DecodePaddedBuffer(paddedBuffer, paddingSymbols));

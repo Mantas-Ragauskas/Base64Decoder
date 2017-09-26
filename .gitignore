@@ -246,3 +246,7 @@ ModelManifest.xml
 .fake/
 *.suo
 Base64Decoder.VC.db
+
+
+.idea/
+cmake-build-debug/
